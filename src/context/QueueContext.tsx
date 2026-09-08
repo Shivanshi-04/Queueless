@@ -41,6 +41,8 @@ interface QueueContextType {
   updateCounterStatus: (counterId: string, status: CounterStatus) => Promise<void>;
   updateCounterServices: (counterId: string, serviceIds: string[]) => Promise<void>;
   updateCounterStaff: (counterId: string, staffName: string) => Promise<void>;
+  updateCounterName: (counterId: string, name: string) => Promise<void>;
+  deleteCounter: (counterId: string) => Promise<void>;
   addNewCounter: (name: string, staffName: string, serviceIds: string[]) => Promise<void>;
   setActiveCustomerToken: (tokenId: string | null) => void;
   toggleSimulation: () => void;
@@ -694,77 +696,123 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Update Counter Status
   const updateCounterStatus = useCallback(
     async (counterId: string, status: CounterStatus) => {
-      try {
-        await api.patch(`/counters/${counterId}/status`, { status });
-        await refreshQueue();
-      } catch (err) {
-        console.warn('Backend update-status failed, using local update.');
-      }
-
       setCounters((prev) =>
         prev.map((c) => (c.id === counterId ? { ...c, status } : c))
       );
+      try {
+        await api.patch(`/counters/${counterId}/status`, { status });
+      } catch (err) {}
     },
-    [refreshQueue]
+    []
   );
 
   // Update Counter Services
   const updateCounterServices = useCallback(
     async (counterId: string, serviceIds: string[]) => {
-      try {
-        await api.patch(`/counters/${counterId}/status`, { supportedServiceIds: serviceIds });
-        await refreshQueue();
-      } catch (err) {}
-
       setCounters((prev) =>
         prev.map((c) => (c.id === counterId ? { ...c, supportedServiceIds: serviceIds } : c))
       );
+      try {
+        await api.patch(`/counters/${counterId}/status`, { supportedServiceIds: serviceIds });
+      } catch (err) {}
     },
-    [refreshQueue]
+    []
   );
 
   // Update Counter Staff
   const updateCounterStaff = useCallback(
     async (counterId: string, staffName: string) => {
-      try {
-        await api.patch(`/counters/${counterId}/status`, { staffName });
-        await refreshQueue();
-      } catch (err) {}
-
       setCounters((prev) =>
         prev.map((c) => (c.id === counterId ? { ...c, staffName } : c))
       );
+      try {
+        await api.patch(`/counters/${counterId}/status`, { staffName });
+      } catch (err) {}
     },
-    [refreshQueue]
+    []
+  );
+
+  // Update Counter Name
+  const updateCounterName = useCallback(
+    async (counterId: string, name: string) => {
+      setCounters((prev) =>
+        prev.map((c) => (c.id === counterId ? { ...c, name } : c))
+      );
+      try {
+        await api.patch(`/counters/${counterId}`, { name });
+      } catch (err) {}
+    },
+    []
+  );
+
+  // Delete Counter
+  const deleteCounter = useCallback(
+    async (counterId: string) => {
+      // Optimistic local state update
+      setCounters((prev) => prev.filter((c) => c.id !== counterId));
+
+      // If deleted counter had an active token, release it
+      setTokens((prev) =>
+        prev.map((t) => {
+          if (t.counterId === counterId && (t.status === 'called' || t.status === 'in_service')) {
+            return {
+              ...t,
+              status: 'waiting',
+              counterId: undefined,
+              counterName: undefined,
+              staffName: undefined,
+            };
+          }
+          return t;
+        })
+      );
+
+      try {
+        await api.delete(`/counters/${counterId}`);
+      } catch (err) {
+        console.warn('Backend delete-counter notice:', err);
+      }
+    },
+    []
   );
 
   // Add New Counter
   const addNewCounter = useCallback(
     async (name: string, staffName: string, serviceIds: string[]) => {
-      try {
-        await api.post('/counters', {
-          name,
-          code: `C${counters.length + 1}`,
-          staffName,
-          supportedServiceIds: serviceIds,
-        });
-        await refreshQueue();
-        return;
-      } catch (err) {}
-
+      const code = `C${counters.length + 1}`;
+      const tempId = `c-${Date.now()}`;
       const newCounter: Counter = {
-        id: `c-${Date.now()}`,
+        id: tempId,
         name,
-        code: `C${counters.length + 1}`,
+        code,
         staffName,
         supportedServiceIds: serviceIds,
         status: 'active',
         servedCountToday: 0,
-        averageServiceMinutes: 6,
+        averageServiceMinutes: 5,
       };
+
+      // Immediate optimistic update
       setCounters((prev) => [...prev, newCounter]);
+
+      try {
+        const response = await api.post('/counters', {
+          name,
+          code,
+          staffName,
+          supportedServiceIds: serviceIds,
+        });
+        if (response.data?.data?._id || response.data?.data?.id) {
+          const realId = response.data.data._id || response.data.data.id;
+          setCounters((prev) =>
+            prev.map((c) => (c.id === tempId ? { ...c, id: realId } : c))
+          );
+        }
+      } catch (err) {
+        console.warn('Backend create-counter notice:', err);
+      }
     },
-    [counters.length, refreshQueue]
+    [counters.length]
   );
 
   // Simulation & Audio toggles
@@ -860,6 +908,8 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCounterStatus,
         updateCounterServices,
         updateCounterStaff,
+        updateCounterName,
+        deleteCounter,
         addNewCounter,
         setActiveCustomerToken: setActiveCustomerTokenId,
         toggleSimulation,

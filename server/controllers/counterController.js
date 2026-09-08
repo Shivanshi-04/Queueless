@@ -77,12 +77,12 @@ export const createCounter = async (req, res) => {
   }
 };
 
-// @desc    Update counter status
-// @route   PATCH /api/counters/:id/status
+// @desc    Update counter details (name, staffName, supportedServiceIds, status)
+// @route   PATCH /api/counters/:id/status or PATCH /api/counters/:id
 // @access  Public / Staff
 export const updateCounterStatus = async (req, res) => {
   try {
-    const { status, staffName } = req.body;
+    const { name, status, staffName, supportedServiceIds } = req.body;
 
     const counter = await Counter.findById(req.params.id);
     if (!counter) {
@@ -92,8 +92,10 @@ export const updateCounterStatus = async (req, res) => {
       });
     }
 
+    if (name) counter.name = name;
     if (status) counter.status = status;
     if (staffName !== undefined) counter.staffName = staffName;
+    if (supportedServiceIds) counter.supportedServiceIds = supportedServiceIds;
 
     await counter.save();
     await counter.populate('currentServingTokenId');
@@ -108,6 +110,53 @@ export const updateCounterStatus = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to update counter status.',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Delete a counter desk
+// @route   DELETE /api/counters/:id
+// @access  Protected / Admin
+export const deleteCounter = async (req, res) => {
+  try {
+    const counter = await Counter.findById(req.params.id);
+    if (!counter) {
+      return res.status(404).json({
+        success: false,
+        message: 'Counter not found.',
+      });
+    }
+
+    // Release any actively assigned token if counter is deleted
+    if (counter.currentServingTokenId) {
+      const activeToken = await Token.findById(counter.currentServingTokenId);
+      if (activeToken && (activeToken.status === 'called' || activeToken.status === 'in_service')) {
+        activeToken.status = 'waiting';
+        activeToken.counterId = null;
+        activeToken.counterName = '';
+        activeToken.staffName = '';
+        await activeToken.save();
+      }
+    }
+
+    if (typeof counter.deleteOne === 'function') {
+      await counter.deleteOne();
+    } else if (typeof Counter.findByIdAndDelete === 'function') {
+      await Counter.findByIdAndDelete(req.params.id);
+    }
+
+    emitQueueEvent('queue:sync', { type: 'counter_deleted', counterId: req.params.id });
+
+    return res.json({
+      success: true,
+      message: 'Counter desk deleted successfully.',
+      data: { id: req.params.id },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete counter desk.',
       error: error.message,
     });
   }

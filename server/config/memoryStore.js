@@ -58,12 +58,18 @@ class MemoryCollection {
     return { deletedCount: initialLen - this.data.length };
   }
 
+  async findByIdAndDelete(id) {
+    const idx = this.data.findIndex(d => String(d._id) === String(id) || String(d.id) === String(id));
+    if (idx === -1) return null;
+    const deleted = this.data.splice(idx, 1)[0];
+    return this.wrapDoc(deleted);
+  }
+
   find(filter = {}) {
     let result = this.data.filter(d => this.matches(d, filter)).map(d => ({ ...d }));
 
     const queryObj = {
       populate: (field) => {
-        // Basic population simulation
         return queryObj;
       },
       sort: (sortSpec) => {
@@ -153,12 +159,32 @@ class MemoryCollection {
   wrapDoc(doc) {
     if (!doc) return null;
     doc.id = doc._id;
+    const self = this;
+
     doc.matchPassword = async function (enteredPassword) {
       return await bcrypt.compare(enteredPassword, this.password);
     };
+
     doc.save = async function () {
-      return this;
+      const idx = self.data.findIndex(d => String(d._id) === String(doc._id) || String(d.id) === String(doc.id));
+      if (idx !== -1) {
+        self.data[idx] = { ...self.data[idx], ...doc, updatedAt: new Date() };
+      }
+      return doc;
     };
+
+    doc.populate = async function () {
+      return doc;
+    };
+
+    doc.deleteOne = async function () {
+      const idx = self.data.findIndex(d => String(d._id) === String(doc._id) || String(d.id) === String(doc.id));
+      if (idx !== -1) {
+        self.data.splice(idx, 1);
+      }
+      return { deletedCount: 1 };
+    };
+
     return doc;
   }
 }
