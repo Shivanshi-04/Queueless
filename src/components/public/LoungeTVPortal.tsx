@@ -50,56 +50,55 @@ export const LoungeTVPortal: React.FC = () => {
     .slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col p-4 sm:p-6 lg:p-8 space-y-6 select-none">
-      {/* TV Kiosk Top Header */}
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col p-4 sm:p-6 lg:p-8 space-y-5 select-none selection:bg-indigo-500 selection:text-white">
+      {/* TV Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-800">
         <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-600/30 border border-indigo-400/40">
-            <Tv className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30 border border-indigo-400/30">
+            <Tv className="w-6 h-6 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-4xl font-black font-mono tracking-tight text-white flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-3xl font-black font-mono tracking-tight text-white flex items-center gap-2">
                 <span>NOW SERVING</span>
-                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
-                LOUNGE KIOSK
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
+                LOUNGE DISPLAY
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">
-              Please watch for your token number and proceed to the designated counter.
+            <p className="text-xs text-slate-400">
+              Please check your token number and proceed to your assigned counter.
             </p>
           </div>
         </div>
 
-        {/* Real-time Clock & TV Controls */}
-        <div className="flex items-center gap-4">
+        {/* Real-time Clock & Fullscreen */}
+        <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-indigo-300">
+            <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-indigo-300">
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
               {currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all shadow-md"
-            title="Toggle TV Fullscreen Mode"
+            className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            title="Toggle TV Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
 
-          {/* Discreet Lounge Manager Sign Out */}
           {user && (
             <button
               onClick={logout}
-              className="p-3 rounded-2xl bg-slate-900 hover:bg-rose-500/15 border border-slate-800 text-slate-400 hover:text-rose-400 transition-all shadow-md"
+              className="p-2.5 rounded-xl bg-slate-900 hover:bg-rose-500/10 border border-slate-800 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
               title="Sign Out of Lounge Display"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -107,47 +106,44 @@ export const LoungeTVPortal: React.FC = () => {
 
       {/* Flashing Last-Called Token Hero Banner */}
       {lastCalledToken && highlightCall && (
-        <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 border-2 border-indigo-300 text-white shadow-2xl shadow-indigo-500/40 animate-pulse flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="p-3.5 rounded-2xl bg-white/20 text-white backdrop-blur-md">
-              <Volume2 className="w-8 h-8 animate-bounce" />
+        <div className="rounded-2xl p-5 bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 border-2 border-indigo-300 text-white shadow-2xl animate-pulse flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center md:text-left">
+            <div className="p-3 rounded-xl bg-white/20 text-white shrink-0">
+              <Volume2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-indigo-200">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">
                 ATTENTION CALL
               </span>
-              <div className="text-3xl sm:text-5xl font-black tracking-tight mt-0.5">
+              <div className="text-3xl sm:text-4xl font-black tracking-tight mt-0.5">
                 Token <span className="font-mono text-amber-300">{lastCalledToken.tokenNumber}</span>
               </div>
-              <p className="text-sm text-indigo-100 font-medium">
+              <p className="text-xs text-indigo-100 font-medium">
                 Customer <span className="font-bold">{lastCalledToken.customerName}</span> ({lastCalledToken.serviceName})
               </p>
             </div>
           </div>
 
-          <div className="text-center md:text-right px-6 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
-            <span className="text-xs uppercase tracking-wider text-indigo-200 font-semibold block">
+          <div className="text-center md:text-right px-5 py-3 rounded-xl bg-white/10 border border-white/20">
+            <span className="text-[10px] uppercase tracking-wider text-indigo-200 font-bold block">
               Proceed Immediately To
             </span>
-            <span className="text-2xl sm:text-4xl font-black text-white font-mono">
-              {lastCalledToken.counterName || 'Counter Desk'}
+            <span className="text-xl sm:text-3xl font-black text-white font-mono">
+              {lastCalledToken.counterName || 'Service Desk'}
             </span>
           </div>
         </div>
       )}
 
       {/* Main Split Screen */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        {/* Left: Active Serving Counters */}
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1">
+        {/* Left: Active Desks Grid */}
+        <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-indigo-400" />
-              <span>Counter Status</span>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Service Counters ({counters.filter((c) => c.status === 'active').length} Open)</span>
             </h2>
-            <span className="text-xs text-slate-500 font-mono">
-              {counters.filter((c) => c.status === 'active').length} Open Desks
-            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -158,19 +154,19 @@ export const LoungeTVPortal: React.FC = () => {
               return (
                 <div
                   key={counter.id}
-                  className={`rounded-3xl p-6 border transition-all duration-300 flex flex-col justify-between ${
+                  className={`rounded-2xl p-5 border transition-all flex flex-col justify-between ${
                     isServing
-                      ? 'bg-gradient-to-br from-slate-900/95 to-indigo-950/70 border-indigo-500/60 shadow-xl shadow-indigo-500/10'
-                      : 'bg-slate-900/50 border-slate-800/80'
+                      ? 'bg-slate-900 border-indigo-500/60 shadow-xl shadow-indigo-500/5'
+                      : 'bg-slate-900/60 border-slate-800'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2.5">
-                        <span className="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-mono font-black text-sm border border-indigo-500/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 font-mono font-black text-xs border border-indigo-500/30">
                           {counter.code}
                         </span>
-                        <h3 className="text-base font-bold text-slate-200">{counter.name}</h3>
+                        <h3 className="text-sm font-bold text-slate-100">{counter.name}</h3>
                       </div>
                       <span className="text-xs text-slate-400 font-medium">
                         {counter.staffName}
@@ -178,27 +174,27 @@ export const LoungeTVPortal: React.FC = () => {
                     </div>
 
                     {isServing ? (
-                      <div className="py-4 text-center border-y border-indigo-900/60 my-2">
-                        <div className="text-5xl sm:text-7xl font-black font-mono tracking-tight text-white drop-shadow-md">
+                      <div className="py-4 text-center border-y border-slate-800 my-2">
+                        <div className="text-5xl font-black font-mono tracking-tight text-white">
                           {servingToken.tokenNumber}
                         </div>
-                        <div className="mt-2 text-base font-bold text-indigo-300">
+                        <div className="mt-1.5 text-sm font-bold text-indigo-300 truncate">
                           {servingToken.customerName}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5 font-medium">
+                        <div className="text-xs text-slate-400 font-medium">
                           {servingToken.serviceName}
                         </div>
                       </div>
                     ) : (
-                      <div className="py-8 text-center border-y border-dashed border-slate-800/80 my-2">
-                        <Clock className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                        <div className="text-lg font-bold text-slate-500">AVAILABLE</div>
-                        <div className="text-xs text-slate-600 mt-1">Ready for next customer</div>
+                      <div className="py-6 text-center border-y border-dashed border-slate-800 my-2">
+                        <Clock className="w-6 h-6 text-slate-600 mx-auto mb-1" />
+                        <div className="text-sm font-bold text-slate-400">AVAILABLE</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">Ready for next customer</div>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-500 pt-3 font-mono">
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-2 font-mono">
                     <span>
                       {isServing ? (
                         <span className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -217,39 +213,39 @@ export const LoungeTVPortal: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Upcoming Tickets */}
-        <div className="space-y-4">
+        {/* Right: Next in Line Queue */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Users className="w-4 h-4 text-amber-400" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-400" />
               <span>Next in Line ({waitingTokens.length})</span>
             </h2>
-            <span className="text-xs text-slate-500 font-mono">Queue Sequence</span>
+            <span className="text-[11px] text-slate-500 font-mono">Queue Sequence</span>
           </div>
 
-          <div className="glass-panel rounded-3xl p-4 border border-slate-800 shadow-xl space-y-2.5">
+          <div className="bg-slate-900/80 rounded-2xl p-3.5 border border-slate-800 shadow-xl space-y-2">
             {waitingTokens.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-xs font-mono">
-                All customers served. No pending queue.
+              <div className="py-10 text-center text-slate-500 text-xs font-mono">
+                No pending queue. Desks are clear.
               </div>
             ) : (
               waitingTokens.map((token, idx) => (
                 <div
                   key={token.id}
-                  className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between"
+                  className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-xl bg-slate-800 font-mono text-xs font-bold text-slate-400 flex items-center justify-center border border-slate-700">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-lg bg-slate-900 font-mono text-xs font-bold text-slate-400 flex items-center justify-center border border-slate-800">
                       {idx + 1}
                     </span>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-white text-lg">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-black text-white text-base">
                           {token.tokenNumber}
                         </span>
                         <PriorityBadge priority={token.priority} size="sm" />
                       </div>
-                      <div className="text-xs text-slate-400 truncate max-w-[140px]">
+                      <div className="text-[11px] text-slate-400 truncate max-w-[120px]">
                         {token.customerName}
                       </div>
                     </div>
@@ -259,7 +255,9 @@ export const LoungeTVPortal: React.FC = () => {
                     <span className="text-xs font-bold text-indigo-300 block font-mono">
                       ~{token.estimatedWaitMins}m
                     </span>
-                    <span className="text-[11px] text-slate-500">{token.serviceName}</span>
+                    <span className="text-[10px] text-slate-500 truncate max-w-[100px] block">
+                      {token.serviceName}
+                    </span>
                   </div>
                 </div>
               ))

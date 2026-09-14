@@ -22,7 +22,6 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
   const {
     counters,
     tokens,
-    services,
     callNext,
     recallToken,
     completeService,
@@ -52,24 +51,24 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span>Active Service Counters</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono border border-slate-700">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <span>Service Counters</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">
               {counters.filter((c) => c.status === 'active').length}/{counters.length} Active
             </span>
           </h2>
           <p className="text-xs text-slate-400">
-            Control live counter desks, call next priority customers, and manage service throughput.
+            Call upcoming customers, complete services, and manage counter staff.
           </p>
         </div>
 
         <button
           onClick={onOpenCounterManager}
-          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5"
+          className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors flex items-center gap-2 cursor-pointer shadow-sm w-fit"
         >
-          <Layers className="w-3.5 h-3.5 text-indigo-400" />
+          <Layers className="w-4 h-4 text-indigo-400" />
           <span>Manage Desks & Staff</span>
         </button>
       </div>
@@ -85,26 +84,27 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
           return (
             <div
               key={counter.id}
-              className={`glass-panel rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
+              className={`rounded-2xl p-5 border transition-all duration-200 flex flex-col justify-between bg-slate-900/90 shadow-xl ${
                 isServing
-                  ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/10'
+                  ? 'border-indigo-500/50 shadow-indigo-500/5'
                   : isPaused
-                  ? 'border-amber-500/40 bg-slate-900/80'
+                  ? 'border-amber-500/40'
                   : 'border-slate-800'
               }`}
             >
               <div>
+                {/* Card Top: Code, Name, Staff, Break Toggle */}
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-mono font-bold text-xs border border-indigo-500/30">
+                      <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono font-bold text-xs border border-indigo-500/30">
                         {counter.code}
                       </span>
                       <h3 className="font-bold text-slate-100 text-sm">{counter.name}</h3>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
                       <User className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{counter.staffName}</span>
+                      <span>{counter.staffName || 'Staff Officer'}</span>
                     </div>
                   </div>
 
@@ -112,16 +112,16 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
                     {counter.status === 'active' ? (
                       <button
                         onClick={() => updateCounterStatus(counter.id, 'paused')}
-                        title="Put Counter on Break"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                        title="Put Desk on Break"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors cursor-pointer"
                       >
                         <Coffee className="w-4 h-4" />
                       </button>
                     ) : (
                       <button
                         onClick={() => updateCounterStatus(counter.id, 'active')}
-                        title="Resume Counter"
-                        className="p-1.5 rounded-lg text-amber-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                        title="Resume Desk"
+                        className="p-1.5 rounded-lg text-amber-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors cursor-pointer"
                       >
                         <Power className="w-4 h-4" />
                       </button>
@@ -129,84 +129,60 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {counter.supportedServiceIds.includes('*') ? (
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
-                      All Services
-                    </span>
-                  ) : (
-                    counter.supportedServiceIds.map((sid) => {
-                      const service = services.find((s) => s.id === sid);
-                      return (
-                        <span
-                          key={sid}
-                          className="text-[10px] px-2 py-0.5 rounded bg-slate-800/90 border border-slate-700 text-slate-300 font-medium truncate max-w-[140px]"
-                        >
-                          {service?.name || sid}
-                        </span>
-                      );
-                    })
-                  )}
-                </div>
-
+                {/* Desk Status View */}
                 {isPaused ? (
-                  <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-500/30 text-center my-3">
+                  <div className="p-5 rounded-xl bg-amber-950/20 border border-amber-500/30 text-center my-2">
                     <Coffee className="w-6 h-6 text-amber-400 mx-auto mb-1 animate-pulse" />
                     <p className="text-xs font-bold text-amber-300">Desk on Break</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Click resume to start calling tickets</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Click resume button above to call tickets</p>
                   </div>
                 ) : servingToken ? (
-                  <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-950/80 to-slate-900 border border-indigo-500/40 shadow-inner my-2">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
-                        Now Serving
+                  <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 my-2 text-center">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                        Serving Now
                       </span>
                       <PriorityBadge priority={servingToken.priority} size="sm" />
                     </div>
 
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-3xl font-black font-mono tracking-tight text-white">
-                        {servingToken.tokenNumber}
-                      </span>
-                      <span className="text-xs text-slate-400 font-medium">
-                        {servingToken.serviceName}
-                      </span>
+                    <div className="text-3xl font-black font-mono text-white tracking-tight my-1">
+                      {servingToken.tokenNumber}
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-indigo-900/60 flex items-center justify-between text-xs">
-                      <span className="text-slate-200 font-semibold truncate max-w-[130px]">
-                        {servingToken.customerName}
-                      </span>
-                      <span className="text-slate-400 font-mono text-[11px]">
-                        {servingToken.contact}
-                      </span>
+                    <div className="text-xs font-bold text-slate-200 truncate">
+                      {servingToken.customerName}
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-medium">
+                      {servingToken.serviceName}
                     </div>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-slate-900/60 border border-dashed border-slate-800 text-center my-2">
+                  <div className="p-4 rounded-xl bg-slate-950/80 border border-dashed border-slate-800 text-center my-2">
                     <Clock className="w-5 h-5 text-slate-500 mx-auto mb-1" />
-                    <p className="text-xs font-semibold text-slate-400">Desk is Idle</p>
+                    <p className="text-xs font-semibold text-slate-300">Desk is Idle</p>
                     {nextCandidate ? (
                       <p className="text-[11px] text-indigo-300 mt-1 flex items-center justify-center gap-1">
-                        <span>Next up:</span>
-                        <span className="font-mono font-bold">{nextCandidate.tokenNumber}</span>
-                        <span>({nextCandidate.customerName})</span>
+                        <span>Next:</span>
+                        <span className="font-mono font-bold text-white">{nextCandidate.tokenNumber}</span>
+                        <span className="truncate max-w-[100px]">({nextCandidate.customerName})</span>
                       </p>
                     ) : (
-                      <p className="text-[11px] text-slate-500 mt-1">No matching tickets in queue</p>
+                      <p className="text-[11px] text-slate-500 mt-1">No pending tickets in queue</p>
                     )}
                   </div>
                 )}
               </div>
 
-              <div className="pt-3 border-t border-slate-800 space-y-2">
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800/80 space-y-2">
                 {!isServing ? (
                   <button
                     onClick={() => callNext(counter.id)}
                     disabled={isPaused || isClosed || !nextCandidate}
-                    className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md ${
+                    className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
                       !isPaused && !isClosed && nextCandidate
-                        ? 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-600/20 active:scale-[0.98]'
+                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20 active:scale-[0.98]'
                         : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
                     }`}
                   >
@@ -217,7 +193,7 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
                   <div className="space-y-1.5">
                     <button
                       onClick={() => completeService(counter.id)}
-                      className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98]"
+                      className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-[0.98]"
                     >
                       <CheckCircle className="w-3.5 h-3.5" />
                       <span>Complete Service</span>
@@ -226,7 +202,7 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
                     <div className="grid grid-cols-2 gap-1.5">
                       <button
                         onClick={() => recallToken(counter.id)}
-                        className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
+                        className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700 flex items-center justify-center gap-1 transition-colors cursor-pointer"
                         title="Repeat audio chime call"
                       >
                         <Bell className="w-3 h-3 text-indigo-400" />
@@ -235,7 +211,7 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
 
                       <button
                         onClick={() => markNoShow(counter.id)}
-                        className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-rose-950/40 text-rose-300 text-[11px] font-semibold border border-slate-700 hover:border-rose-800/60 flex items-center justify-center gap-1.5 transition-all"
+                        className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-rose-950/40 text-rose-300 text-[11px] font-semibold border border-slate-700 hover:border-rose-800/60 flex items-center justify-center gap-1 transition-colors cursor-pointer"
                         title="Customer did not show up"
                       >
                         <UserX className="w-3 h-3" />
@@ -246,7 +222,7 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
                 )}
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1">
-                  <span>Served: {counter.servedCountToday}</span>
+                  <span>Served: {counter.servedCountToday} today</span>
                   <span>Avg: {counter.averageServiceMinutes}m</span>
                 </div>
               </div>
