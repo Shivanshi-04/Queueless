@@ -234,6 +234,19 @@ export const INITIAL_TOKENS: Token[] = [
     createdAt: now - 1 * min,
     estimatedWaitMins: 14,
   },
+  {
+    id: 't-110',
+    tokenNumber: 'B-110',
+    customerName: 'Harold Jenkins',
+    contact: '+1 (555) 777-9911',
+    serviceId: 'cashier_billing',
+    serviceName: 'Cashier & Billing',
+    priority: 'senior_disabled',
+    status: 'waiting',
+    createdAt: now - 5 * min,
+    estimatedWaitMins: 6,
+    notes: 'Senior citizen pension check payout & assisted seating',
+  },
 
   // Completed Today
   {

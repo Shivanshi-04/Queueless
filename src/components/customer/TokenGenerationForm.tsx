@@ -107,34 +107,34 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-xl backdrop-blur-xl">
+      <div className="bg-[#F8F8F6] rounded-2xl p-6 sm:p-8 border border-[#A9A7A8]/35 shadow-sm">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-semibold mb-2 border border-indigo-500/20">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DF9B60]/15 text-[#E07015] text-xs font-bold mb-2 border border-[#DF9B60]/30">
+            <Sparkles className="w-3.5 h-3.5 text-[#E07015]" />
             <span>Digital Kiosk Check-In</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-[#2D3441] tracking-tight">
             Take Your Service Token
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            Fill in your details below to get your digital queue pass and track your turn live.
+          <p className="text-[#6C7380] text-xs sm:text-sm mt-1">
+            Fill in your contact details below to join the live queue and track your position on your phone.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Customer Contact Info */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#2D3441] uppercase tracking-wider mb-2">
               1. Your Contact Details
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">
-                  Full Name <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-[#6C7380] mb-1">
+                  Full Name <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#A9A7A8]">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -145,13 +145,13 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
                       if (errors.customerName) setErrors({ ...errors, customerName: undefined });
                     }}
                     placeholder="e.g. Marcus Vance"
-                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border ${
-                      errors.customerName ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'
-                    } text-slate-100 placeholder-slate-500 text-xs sm:text-sm focus:outline-none transition-colors`}
+                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border ${
+                      errors.customerName ? 'border-rose-500' : 'border-[#A9A7A8]/60 focus:border-[#E07015] focus:ring-2 focus:ring-[#E07015]/15'
+                    } text-[#2D3441] placeholder-[#A9A7A8] text-xs sm:text-sm focus:outline-none transition-all`}
                   />
                 </div>
                 {errors.customerName && (
-                  <p className="text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                  <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1 font-medium">
                     <AlertCircle className="w-3 h-3" />
                     <span>{errors.customerName}</span>
                   </p>
@@ -159,11 +159,11 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">
-                  Phone / WhatsApp <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-[#6C7380] mb-1">
+                  Phone / WhatsApp <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#A9A7A8]">
                     <Phone className="w-4 h-4" />
                   </div>
                   <input
@@ -174,13 +174,13 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
                       if (errors.contact) setErrors({ ...errors, contact: undefined });
                     }}
                     placeholder="e.g. +1 (555) 019-2834"
-                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border ${
-                      errors.contact ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'
-                    } text-slate-100 placeholder-slate-500 text-xs sm:text-sm focus:outline-none transition-colors`}
+                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border ${
+                      errors.contact ? 'border-rose-500' : 'border-[#A9A7A8]/60 focus:border-[#E07015] focus:ring-2 focus:ring-[#E07015]/15'
+                    } text-[#2D3441] placeholder-[#A9A7A8] text-xs sm:text-sm focus:outline-none transition-all`}
                   />
                 </div>
                 {errors.contact && (
-                  <p className="text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                  <p className="text-[11px] text-rose-500 mt-1 flex items-center gap-1 font-medium">
                     <AlertCircle className="w-3 h-3" />
                     <span>{errors.contact}</span>
                   </p>
@@ -191,13 +191,22 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
 
           {/* Section 2: Choose Service */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-              2. Select Service Needed
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-[#2D3441] uppercase tracking-wider">
+                2. Select Service Needed
+              </label>
+              <span className="text-[11px] text-[#6C7380]">
+                {services.length} available service desks
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {services.map((service) => {
                 const isSelected = selectedServiceId === service.id;
                 const IconComponent = getServiceIcon(service.iconName);
+                const waitingForThis = tokens.filter(
+                  (t) => t.status === 'waiting' && t.serviceId === service.id
+                ).length;
+
                 return (
                   <button
                     key={service.id}
@@ -205,29 +214,42 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
                     onClick={() => setSelectedServiceId(service.id)}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 ${
                       isSelected
-                        ? 'bg-indigo-600/15 border-indigo-500 text-slate-100 ring-1 ring-indigo-500/50'
-                        : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                        ? 'bg-white border-[#E07015] ring-2 ring-[#E07015]/20 shadow-md'
+                        : 'bg-white/80 border-[#A9A7A8]/40 hover:border-[#DF9B60] hover:bg-white text-[#6C7380]'
                     }`}
                   >
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                         isSelected
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-slate-800 text-slate-400'
+                          ? 'bg-[#E07015] text-white shadow-sm shadow-[#E07015]/30'
+                          : 'bg-[#EDECEB] text-[#6C7380]'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-200 truncate">
+                        <span className={`text-xs font-bold truncate ${isSelected ? 'text-[#2D3441]' : 'text-[#2D3441]'}`}>
                           {service.name}
                         </span>
-                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
+                        {isSelected ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#E07015] shrink-0" />
+                        ) : (
+                          <span className="text-[10px] font-semibold text-[#A9A7A8]">
+                            ~{service.avgDurationMins}m
+                          </span>
+                        )}
                       </div>
-                      <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
+                      <p className="text-[11px] text-[#6C7380] line-clamp-1 mt-0.5">
                         {service.description}
                       </p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px]">
+                        <span className="px-1.5 py-0.2 rounded bg-[#EDECEB] text-[#6C7380] font-medium">
+                          {waitingForThis} waiting
+                        </span>
+                        <span className="text-[#A9A7A8]">•</span>
+                        <span className="text-[#6C7380]">Avg ~{service.avgDurationMins} mins</span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -237,15 +259,15 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
 
           {/* Section 3: Priority Category */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#2D3441] uppercase tracking-wider mb-2">
               3. Assistance / Priority
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {[
-                { id: 'regular', label: 'Standard', icon: UserCheck },
-                { id: 'senior_disabled', label: 'Senior / Assisted', icon: HeartHandshake },
-                { id: 'vip', label: 'VIP Member', icon: Crown },
-                { id: 'urgent', label: 'Urgent Need', icon: Zap },
+                { id: 'regular', label: 'Standard', desc: 'General queue', icon: UserCheck },
+                { id: 'senior_disabled', label: 'Senior / Assisted', desc: 'Dedicated help', icon: HeartHandshake },
+                { id: 'vip', label: 'VIP Member', desc: 'Loyalty member', icon: Crown },
+                { id: 'urgent', label: 'Urgent Need', desc: 'Express lane', icon: Zap },
               ].map((p) => {
                 const isSelected = priority === p.id;
                 const PIcon = p.icon;
@@ -254,14 +276,15 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
                     key={p.id}
                     type="button"
                     onClick={() => setPriority(p.id as PriorityLevel)}
-                    className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                       isSelected
-                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold shadow-sm'
-                        : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200'
+                        ? 'bg-[#DFCAB2]/30 border-[#E07015] text-[#2D3441] font-bold ring-2 ring-[#E07015]/20 shadow-sm'
+                        : 'bg-white border-[#A9A7A8]/40 text-[#6C7380] hover:border-[#DF9B60] hover:text-[#2D3441]'
                     }`}
                   >
-                    <PIcon className="w-4 h-4 mb-1" />
-                    <span className="text-xs">{p.label}</span>
+                    <PIcon className={`w-4 h-4 mb-1.5 ${isSelected ? 'text-[#E07015]' : 'text-[#6C7380]'}`} />
+                    <span className="text-xs font-bold">{p.label}</span>
+                    <span className="text-[10px] text-[#A9A7A8] mt-0.5 leading-tight">{p.desc}</span>
                   </button>
                 );
               })}
@@ -269,26 +292,38 @@ export const TokenGenerationForm: React.FC<TokenGenerationFormProps> = ({ onToke
           </div>
 
           {/* Estimated Wait Time Summary Pill */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-            <div className="flex items-center gap-2 text-slate-400">
-              <Clock className="w-4 h-4 text-indigo-400" />
-              <span>Estimated Wait Time:</span>
+          <div className="flex items-center justify-between p-4 rounded-xl bg-[#EDECEB] border border-[#DFCAB2] text-xs">
+            <div className="flex items-center gap-2 text-[#2D3441]">
+              <div className="p-1.5 rounded-lg bg-[#E07015]/15 text-[#E07015]">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold block">Live Dynamic Estimated Wait</span>
+                <span className="text-[11px] text-[#6C7380]">
+                  Based on {waitingInSelected} in queue and {activeCountersForService || 1} counter(s)
+                </span>
+              </div>
             </div>
-            <span className="font-bold font-mono text-indigo-300 text-sm">
-              ~{previewEstimatedMins} mins
-            </span>
+            <div className="text-right">
+              <span className="font-black font-mono text-[#E07015] text-lg sm:text-xl">
+                ~{previewEstimatedMins} mins
+              </span>
+            </div>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/25 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl bg-[#E07015] hover:bg-[#C75D0D] text-white font-bold text-sm sm:text-base shadow-lg shadow-[#E07015]/25 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? (
-              <span>Generating Token...</span>
+              <span>Generating Your Digital Token...</span>
             ) : (
-              <span>Join Queue & Get Ticket</span>
+              <>
+                <Sparkles className="w-4 h-4 text-amber-200" />
+                <span>Join Queue & Get Instant Ticket Pass</span>
+              </>
             )}
           </button>
         </form>

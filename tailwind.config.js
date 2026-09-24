@@ -11,18 +11,30 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
+        theme: {
+          primaryDark: '#2D3441',       // Deep Navy Charcoal
+          darkest: '#232932',           // Charcoal
+          secondaryGray: '#6C7380',     // Slate Gray
+          lightGray: '#A9A7A8',         // Cool Gray
+          mainBg: '#EDECEB',            // Off White
+          cardWhite: '#F8F8F6',         // Soft White
+          primaryAccent: '#E07015',     // Warm Orange
+          orangeLight: '#DF9B60',       // Soft Orange
+          warmBeige: '#DFCAB2',         // Cream Beige
+          textWhite: '#FFFFFF',         // White
+        },
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#FDF7F2',
+          100: '#FBECE0',
+          200: '#DFCAB2', // Cream Beige
+          300: '#DF9B60', // Soft Orange
+          400: '#E8822E',
+          500: '#E07015', // Warm Orange (Primary Accent)
+          600: '#C75D0D',
+          700: '#A14808',
+          800: '#2D3441', // Deep Navy Charcoal
+          900: '#232932', // Charcoal
+          950: '#191D24',
         },
       },
       animation: {

@@ -22,12 +22,12 @@ export const CustomerView: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 sm:py-10 space-y-6">
       {/* Top Customer Sub-Navigation Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-[#A9A7A8]/30">
         <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black text-[#2D3441] flex items-center gap-2">
             <span>Customer Service Queue</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-[#6C7380]">
             Check-in digitally, generate instant service tokens, and monitor wait times in real time.
           </p>
         </div>
@@ -36,20 +36,20 @@ export const CustomerView: React.FC = () => {
           {/* Lookup Modal Button */}
           <button
             onClick={() => setIsLookupOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-[#F8F8F6] hover:bg-white border border-[#A9A7A8]/40 text-xs font-bold text-[#2D3441] transition-all flex items-center gap-1.5 shadow-sm"
           >
-            <Search className="w-3.5 h-3.5 text-indigo-400" />
+            <Search className="w-3.5 h-3.5 text-[#E07015]" />
             <span>Find My Ticket</span>
           </button>
 
           {/* Tab Switcher */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800">
+          <div className="flex items-center p-1 rounded-xl bg-[#F8F8F6] border border-[#A9A7A8]/40 shadow-sm">
             <button
               onClick={() => setActiveTab('form')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'form'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E07015] text-white shadow'
+                  : 'text-[#6C7380] hover:text-[#2D3441]'
               }`}
             >
               <PlusCircle className="w-3.5 h-3.5" />
@@ -57,10 +57,10 @@ export const CustomerView: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('pass')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'pass'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E07015] text-white shadow'
+                  : 'text-[#6C7380] hover:text-[#2D3441]'
               }`}
             >
               <QrCode className="w-3.5 h-3.5" />

@@ -20,6 +20,10 @@ interface QueueContextType {
   services: ServiceTypeDefinition[];
   logs: QueueLog[];
   activeCustomerTokenId: string | null;
+  customerTokenIds: string[];
+  customerTokens: Token[];
+  addCustomerToken: (tokenId: string) => void;
+  removeCustomerToken: (tokenId: string) => void;
   lastCalledToken: Token | null;
   isSimulating: boolean;
   isMuted: boolean;
@@ -56,6 +60,7 @@ const STORAGE_KEY_TOKENS = 'queueless_tokens_v1';
 const STORAGE_KEY_COUNTERS = 'queueless_counters_v1';
 const STORAGE_KEY_LOGS = 'queueless_logs_v1';
 const STORAGE_KEY_ACTIVE_TOKEN = 'queueless_active_customer_token';
+const STORAGE_KEY_CUSTOMER_TOKENS = 'queueless_customer_tokens_list_v1';
 
 const QueueContext = createContext<QueueContextType | undefined>(undefined);
 
@@ -110,6 +115,20 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return localStorage.getItem(STORAGE_KEY_ACTIVE_TOKEN) || 't-104';
   });
 
+  const [customerTokenIds, setCustomerTokenIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_CUSTOMER_TOKENS);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch {}
+    }
+    const single = localStorage.getItem(STORAGE_KEY_ACTIVE_TOKEN) || 't-104';
+    return single ? [single] : ['t-104'];
+  });
+
   const [lastCalledToken, setLastCalledToken] = useState<Token | null>(null);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -134,6 +153,34 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.removeItem(STORAGE_KEY_ACTIVE_TOKEN);
     }
   }, [activeCustomerTokenId]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CUSTOMER_TOKENS, JSON.stringify(customerTokenIds));
+  }, [customerTokenIds]);
+
+  const addCustomerToken = useCallback((tokenId: string) => {
+    setCustomerTokenIds((prev) => Array.from(new Set([tokenId, ...prev])));
+    setActiveCustomerTokenId(tokenId);
+  }, []);
+
+  const removeCustomerToken = useCallback((tokenId: string) => {
+    setCustomerTokenIds((prev) => {
+      const next = prev.filter((id) => id !== tokenId);
+      return next;
+    });
+    setActiveCustomerTokenId((prev) => (prev === tokenId ? null : prev));
+  }, []);
+
+  const handleSetActiveCustomerToken = useCallback((tokenId: string | null) => {
+    setActiveCustomerTokenId(tokenId);
+    if (tokenId) {
+      setCustomerTokenIds((prev) => Array.from(new Set([tokenId, ...prev])));
+    }
+  }, []);
+
+  const customerTokens = useMemo(() => {
+    return tokens.filter((t) => customerTokenIds.includes(t.id));
+  }, [tokens, customerTokenIds]);
 
   const addLog = useCallback(
     (
@@ -339,6 +386,7 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (response.data?.token) {
           const newToken = normalizeToken(response.data.token);
           setTokens((prev) => [newToken, ...prev]);
+          setCustomerTokenIds((prev) => Array.from(new Set([newToken.id, ...prev])));
           setActiveCustomerTokenId(newToken.id);
           addLog('token_created', newToken.tokenNumber, newToken.customerName, `Joined queue for ${service.name}`);
           audioService.playClick();
@@ -371,6 +419,7 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       newToken.estimatedWaitMins = estimateWaitTime(newToken, [...tokens, newToken], counters, SERVICE_TYPES);
 
       setTokens((prev) => [...prev, newToken]);
+      setCustomerTokenIds((prev) => Array.from(new Set([newToken.id, ...prev])));
       setActiveCustomerTokenId(newToken.id);
 
       addLog('token_created', tokenNumber, newToken.customerName, `Joined queue for ${service.name}`);
@@ -852,10 +901,12 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTokens(INITIAL_TOKENS);
     setCounters(INITIAL_COUNTERS);
     setActiveCustomerTokenId(null);
+    setCustomerTokenIds(['t-104']);
     setLastCalledToken(null);
     localStorage.removeItem(STORAGE_KEY_TOKENS);
     localStorage.removeItem(STORAGE_KEY_COUNTERS);
     localStorage.removeItem(STORAGE_KEY_ACTIVE_TOKEN);
+    localStorage.removeItem(STORAGE_KEY_CUSTOMER_TOKENS);
   }, [refreshQueue]);
 
   // Derived Stats
@@ -893,6 +944,10 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         services: SERVICE_TYPES,
         logs,
         activeCustomerTokenId,
+        customerTokenIds,
+        customerTokens,
+        addCustomerToken,
+        removeCustomerToken,
         lastCalledToken,
         isSimulating,
         isMuted,
@@ -911,7 +966,7 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCounterName,
         deleteCounter,
         addNewCounter,
-        setActiveCustomerToken: setActiveCustomerTokenId,
+        setActiveCustomerToken: handleSetActiveCustomerToken,
         toggleSimulation,
         toggleMute,
         injectSampleCustomer,

@@ -24,44 +24,44 @@ export const DemoControlsBar: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-40">
-      <div className="glass-panel rounded-2xl border border-indigo-500/40 shadow-2xl overflow-hidden transition-all duration-300">
+      <div className="rounded-2xl border border-[#E07015]/40 shadow-2xl overflow-hidden transition-all duration-300 bg-[#2D3441]">
         <div
           onClick={() => setIsExpanded(!isExpanded)}
-          className="px-4 py-2.5 bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-900"
+          className="px-4 py-2.5 bg-gradient-to-r from-[#232932] via-[#2D3441] to-[#232932] flex items-center justify-between gap-3 cursor-pointer hover:bg-[#232932]/80"
         >
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="w-2 h-2 rounded-full bg-[#E07015] animate-pulse" />
+            <span className="text-xs font-bold text-[#F8F8F6] uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#DF9B60]" />
               <span>Demo Realtime Controls</span>
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             {isSimulating && (
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 animate-pulse">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E07015]/20 text-[#DF9B60] border border-[#E07015]/40 animate-pulse">
                 Simulating
               </span>
             )}
-            <button className="text-slate-400 hover:text-white">
+            <button className="text-[#A9A7A8] hover:text-white cursor-pointer">
               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
         {isExpanded && (
-          <div className="p-4 bg-slate-950/95 border-t border-slate-800 space-y-3 min-w-[280px]">
-            <p className="text-[11px] text-slate-400 leading-snug">
+          <div className="p-4 bg-[#232932] border-t border-[#6C7380]/30 space-y-3 min-w-[280px]">
+            <p className="text-[11px] text-[#A9A7A8] leading-snug">
               Use these mock controls to test real-time state sync, customer arrivals, and counter actions.
             </p>
 
             <div className="grid grid-cols-1 gap-2">
               <button
                 onClick={toggleSimulation}
-                className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   isSimulating
                     ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md shadow-amber-600/20'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20'
+                    : 'bg-[#E07015] hover:bg-[#DF9B60] text-white shadow-md shadow-[#E07015]/20'
                 }`}
               >
                 {isSimulating ? (
@@ -79,15 +79,15 @@ export const DemoControlsBar: React.FC = () => {
 
               <button
                 onClick={() => injectSampleCustomer()}
-                className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center justify-center gap-2 transition-all"
+                className="w-full py-2 px-3 rounded-xl bg-[#2D3441] hover:bg-[#384152] text-[#F8F8F6] text-xs font-semibold border border-[#6C7380]/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <PlusCircle className="w-3.5 h-3.5 text-indigo-400" />
+                <PlusCircle className="w-3.5 h-3.5 text-[#DF9B60]" />
                 <span>+1 Random Customer</span>
               </button>
 
               <button
                 onClick={() => audioService.playCallChime()}
-                className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center justify-center gap-2 transition-all"
+                className="w-full py-2 px-3 rounded-xl bg-[#2D3441] hover:bg-[#384152] text-[#F8F8F6] text-xs font-semibold border border-[#6C7380]/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Test Announcement Chime</span>
@@ -95,7 +95,7 @@ export const DemoControlsBar: React.FC = () => {
 
               <button
                 onClick={() => resetQueueData()}
-                className="w-full py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 text-[11px] font-semibold border border-slate-800 hover:border-rose-800/40 flex items-center justify-center gap-1.5 transition-all"
+                className="w-full py-1.5 px-3 rounded-xl bg-[#1E232B] hover:bg-rose-950/40 text-[#A9A7A8] hover:text-rose-300 text-[11px] font-semibold border border-[#6C7380]/30 hover:border-rose-800/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset Demo Database</span>

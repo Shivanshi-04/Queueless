@@ -47,11 +47,11 @@ export const LoungeDisplay: React.FC = () => {
     .slice(0, 8);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-950 text-white flex flex-col p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#EDECEB] text-[#2D3441] flex flex-col p-4 sm:p-6 lg:p-8 space-y-6">
       {/* TV Header Bar */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between p-4 sm:p-5 rounded-3xl bg-[#2D3441] text-white shadow-md border border-[#232932]">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30 border border-indigo-400/30">
+          <div className="w-12 h-12 rounded-2xl bg-[#E07015] flex items-center justify-center shadow-lg shadow-[#E07015]/30 border border-[#DF9B60]/40">
             <Tv className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -59,7 +59,7 @@ export const LoungeDisplay: React.FC = () => {
               <span>NOW SERVING</span>
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400">
+            <p className="text-xs sm:text-sm text-[#A9A7A8]">
               Please watch the screen for your token number and proceed to the indicated counter desk.
             </p>
           </div>
@@ -68,17 +68,17 @@ export const LoungeDisplay: React.FC = () => {
         {/* Real-time Clock & TV Controls */}
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-indigo-300">
+            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-[#DF9B60]">
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+            <div className="text-xs text-[#A9A7A8] uppercase tracking-wider font-semibold">
               {currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all shadow-md"
+            className="p-3 rounded-2xl bg-[#232932] hover:bg-[#1E232B] border border-[#6C7380]/40 text-[#F8F8F6] hover:text-white transition-all shadow-md cursor-pointer"
             title="Toggle TV Fullscreen Mode"
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
@@ -88,26 +88,26 @@ export const LoungeDisplay: React.FC = () => {
 
       {/* Flashing Last-Called Token Hero Banner */}
       {lastCalledToken && highlightCall && (
-        <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 border-2 border-indigo-300 text-white shadow-2xl shadow-indigo-500/40 animate-pulse flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="rounded-3xl p-6 bg-gradient-to-r from-[#E07015] via-[#DF9B60] to-[#E07015] border-2 border-[#DFCAB2] text-white shadow-xl shadow-[#E07015]/20 animate-pulse flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="p-3.5 rounded-2xl bg-white/20 text-white backdrop-blur-md">
-              <Volume2 className="w-8 h-8 animate-bounce-soft" />
+            <div className="p-3.5 rounded-2xl bg-black/20 text-white backdrop-blur-md">
+              <Volume2 className="w-8 h-8" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-indigo-200">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#DFCAB2]">
                 ATTENTION CALL
               </span>
               <div className="text-3xl sm:text-4xl font-black tracking-tight mt-0.5">
-                Token <span className="font-mono text-amber-300">{lastCalledToken.tokenNumber}</span>
+                Token <span className="font-mono text-white underline decoration-[#DFCAB2] decoration-4">{lastCalledToken.tokenNumber}</span>
               </div>
-              <p className="text-sm text-indigo-100 font-medium">
+              <p className="text-sm text-[#F8F8F6] font-medium">
                 Customer <span className="font-bold">{lastCalledToken.customerName}</span> ({lastCalledToken.serviceName})
               </p>
             </div>
           </div>
 
-          <div className="text-center md:text-right px-6 py-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
-            <span className="text-xs uppercase tracking-wider text-indigo-200 font-semibold block">
+          <div className="text-center md:text-right px-6 py-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20">
+            <span className="text-xs uppercase tracking-wider text-[#DFCAB2] font-semibold block">
               Proceed Immediately To
             </span>
             <span className="text-2xl sm:text-3xl font-black text-white font-mono">
@@ -122,11 +122,11 @@ export const LoungeDisplay: React.FC = () => {
         {/* Left: Active Serving Counters */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-indigo-400" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-[#6C7380] flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#E07015]" />
               <span>Counter Status</span>
             </h2>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-[#6C7380] font-mono">
               {counters.filter((c) => c.status === 'active').length} Open Desks
             </span>
           </div>
@@ -141,49 +141,49 @@ export const LoungeDisplay: React.FC = () => {
                   key={counter.id}
                   className={`rounded-3xl p-6 border transition-all duration-300 flex flex-col justify-between ${
                     isServing
-                      ? 'bg-gradient-to-br from-slate-900/95 to-indigo-950/70 border-indigo-500/60 shadow-xl shadow-indigo-500/10'
-                      : 'bg-slate-900/50 border-slate-800/80'
+                      ? 'bg-white border-[#E07015] ring-2 ring-[#E07015]/20 shadow-md'
+                      : 'bg-[#F8F8F6] border-[#A9A7A8]/40 shadow-xs'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2.5">
-                        <span className="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-mono font-black text-sm border border-indigo-500/30">
+                        <span className="px-3 py-1 rounded-xl bg-[#E07015]/15 text-[#E07015] font-mono font-black text-sm border border-[#E07015]/30">
                           {counter.code}
                         </span>
-                        <h3 className="text-base font-bold text-slate-200">{counter.name}</h3>
+                        <h3 className="text-base font-bold text-[#2D3441]">{counter.name}</h3>
                       </div>
-                      <span className="text-xs text-slate-400 font-medium">
+                      <span className="text-xs text-[#6C7380] font-medium">
                         {counter.staffName}
                       </span>
                     </div>
 
                     {isServing ? (
-                      <div className="py-4 text-center border-y border-indigo-900/60 my-2">
-                        <div className="text-5xl sm:text-6xl font-black font-mono tracking-tight text-white drop-shadow-md">
+                      <div className="py-4 text-center border-y border-[#A9A7A8]/30 my-2 bg-[#EDECEB]/40 rounded-2xl">
+                        <div className="text-5xl sm:text-6xl font-black font-mono tracking-tight text-[#2D3441] drop-shadow-xs">
                           {servingToken.tokenNumber}
                         </div>
-                        <div className="mt-2 text-sm font-semibold text-indigo-300">
+                        <div className="mt-2 text-sm font-semibold text-[#E07015]">
                           {servingToken.customerName}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">
+                        <div className="text-xs text-[#6C7380] mt-0.5">
                           {servingToken.serviceName}
                         </div>
                       </div>
                     ) : (
-                      <div className="py-8 text-center border-y border-dashed border-slate-800/80 my-2">
-                        <Clock className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                        <div className="text-lg font-bold text-slate-500">AVAILABLE</div>
-                        <div className="text-xs text-slate-600 mt-1">Ready for next customer</div>
+                      <div className="py-8 text-center border-y border-dashed border-[#A9A7A8]/60 my-2 bg-[#EDECEB]/20 rounded-2xl">
+                        <Clock className="w-8 h-8 text-[#A9A7A8] mx-auto mb-2" />
+                        <div className="text-lg font-bold text-[#6C7380]">AVAILABLE</div>
+                        <div className="text-xs text-[#A9A7A8] mt-1">Ready for next customer</div>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-500 pt-3 font-mono">
+                  <div className="flex items-center justify-between text-xs text-[#6C7380] pt-3 font-mono">
                     <span>
                       {isServing ? (
-                        <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                        <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                           IN SERVICE
                         </span>
                       ) : (
@@ -201,46 +201,46 @@ export const LoungeDisplay: React.FC = () => {
         {/* Right: Upcoming Tickets */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Users className="w-4 h-4 text-amber-400" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-[#6C7380] flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#E07015]" />
               <span>Next in Line ({waitingTokens.length})</span>
             </h2>
-            <span className="text-xs text-slate-500 font-mono">Queue Sequence</span>
+            <span className="text-xs text-[#6C7380] font-mono">Queue Sequence</span>
           </div>
 
-          <div className="glass-panel rounded-3xl p-4 border border-slate-800 shadow-xl space-y-2.5">
+          <div className="bg-[#F8F8F6] rounded-3xl p-4 border border-[#A9A7A8]/40 shadow-sm space-y-2.5">
             {waitingTokens.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-xs">
+              <div className="py-12 text-center text-[#6C7380] text-xs">
                 All customers served. No pending queue.
               </div>
             ) : (
               waitingTokens.map((token, idx) => (
                 <div
                   key={token.id}
-                  className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between"
+                  className="p-3 rounded-2xl bg-white border border-[#A9A7A8]/30 flex items-center justify-between shadow-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 rounded-xl bg-slate-800 font-mono text-xs font-bold text-slate-400 flex items-center justify-center border border-slate-700">
+                    <span className="w-7 h-7 rounded-xl bg-[#EDECEB] font-mono text-xs font-bold text-[#2D3441] flex items-center justify-center border border-[#A9A7A8]/40">
                       {idx + 1}
                     </span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-white text-base">
+                        <span className="font-mono font-black text-[#2D3441] text-base">
                           {token.tokenNumber}
                         </span>
                         <PriorityBadge priority={token.priority} size="sm" />
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate max-w-[130px]">
+                      <div className="text-[11px] text-[#6C7380] truncate max-w-[130px]">
                         {token.customerName}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs font-bold text-indigo-300 block font-mono">
+                    <span className="text-xs font-bold text-[#E07015] block font-mono">
                       ~{token.estimatedWaitMins}m
                     </span>
-                    <span className="text-[10px] text-slate-500">{token.serviceName}</span>
+                    <span className="text-[10px] text-[#6C7380]">{token.serviceName}</span>
                   </div>
                 </div>
               ))
@@ -251,3 +251,4 @@ export const LoungeDisplay: React.FC = () => {
     </div>
   );
 };
+

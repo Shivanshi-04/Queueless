@@ -11,7 +11,6 @@ import {
   Users,
   CheckCircle2,
   Clock,
-  PlusCircle,
   RotateCcw,
   Volume2,
   VolumeX,
@@ -23,41 +22,33 @@ export const AdminPortal: React.FC = () => {
   const { user, logout } = useAuth();
   const {
     stats,
-    injectSampleCustomer,
     resetQueueData,
     isMuted,
     toggleMute,
   } = useQueue();
 
   const [isCounterManagerOpen, setIsCounterManagerOpen] = useState(false);
-  const [isInjecting, setIsInjecting] = useState(false);
-
-  const handleInject = async () => {
-    setIsInjecting(true);
-    await injectSampleCustomer();
-    setIsInjecting(false);
-  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#EDECEB] text-[#2D3441] selection:bg-[#E07015] selection:text-white">
       {/* Top Admin Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 w-full border-b border-[#232932]/20 bg-[#2D3441] shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center shadow-md shadow-violet-600/30 border border-violet-500/30">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E07015] to-[#DF9B60] flex items-center justify-center shadow-md shadow-[#E07015]/30 border border-[#DFCAB2]/30">
               <Layers className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-lg font-black tracking-tight text-white font-mono">
-                  Queue<span className="text-violet-400">Less</span>
+                  Queue<span className="text-[#DF9B60]">Less</span>
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-500/15 text-violet-300 border border-violet-500/25">
-                  Admin
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#E07015]/20 text-[#DFCAB2] border border-[#DFCAB2]/30">
+                  Admin Center
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">
+              <p className="text-[11px] text-[#A9A7A8] font-medium">
                 Multi-Counter Dispatch & Command Center
               </p>
             </div>
@@ -71,23 +62,23 @@ export const AdminPortal: React.FC = () => {
               title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
               className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                 isMuted
-                  ? 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
-                  : 'bg-violet-500/10 border-violet-500/30 text-violet-300 hover:bg-violet-500/20'
+                  ? 'bg-[#232932] border-[#6C7380]/40 text-[#6C7380] hover:text-[#A9A7A8]'
+                  : 'bg-[#E07015]/20 border-[#E07015]/40 text-[#DF9B60] hover:bg-[#E07015]/30'
               }`}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
 
             {/* Admin Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-              <Shield className="w-3.5 h-3.5 text-violet-400" />
-              <span className="text-slate-200 font-semibold">{user?.name || 'Administrator'}</span>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#232932] border border-[#6C7380]/40 text-xs">
+              <Shield className="w-3.5 h-3.5 text-[#DF9B60]" />
+              <span className="text-white font-semibold">{user?.name || 'Administrator'}</span>
             </div>
 
             {/* Logout */}
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/30 text-xs font-semibold transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#232932] hover:bg-rose-500/20 text-[#A9A7A8] hover:text-rose-300 border border-[#6C7380]/40 text-xs font-semibold transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -120,41 +111,31 @@ export const AdminPortal: React.FC = () => {
             value={stats.totalCompletedToday}
             sublabel="Completed tickets"
             icon={CheckCircle2}
-            color="indigo"
+            color="orange"
           />
           <StatCard
             label="Avg Wait Time"
             value={`~${stats.avgWaitMinutes}m`}
             sublabel="Estimated throughput"
             icon={Clock}
-            color="sky"
+            color="beige"
           />
         </div>
 
         {/* Quick Operations Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#F8F8F6] border border-[#A9A7A8]/40 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#2D3441]">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Live Dispatch System Active</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleInject}
-              disabled={isInjecting}
-              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
-              title="Add a test customer into queue"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>{isInjecting ? 'Adding...' : 'Add Test Customer'}</span>
-            </button>
-
-            <button
               onClick={resetQueueData}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[#EDECEB] hover:bg-[#DFCAB2]/50 text-[#2D3441] text-xs font-semibold border border-[#A9A7A8]/60 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Reset queue to default initial tickets"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#6C7380]" />
               <span>Reset Queue</span>
             </button>
           </div>
@@ -165,7 +146,7 @@ export const AdminPortal: React.FC = () => {
 
         {/* Live Queue Table */}
         <div className="space-y-3 pt-2">
-          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-base sm:text-lg font-bold text-[#2D3441] flex items-center gap-2">
             <span>Live Queue Manifest</span>
           </h2>
           <QueueTable />
