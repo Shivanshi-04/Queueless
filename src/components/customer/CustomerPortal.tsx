@@ -34,9 +34,24 @@ export const CustomerPortal: React.FC = () => {
   });
   const [isLookupOpen, setIsLookupOpen] = useState(false);
 
-  const activeToken = tokens.find((t) => t.id === activeCustomerTokenId) || customerTokens[0];
+  const activeCustomerTokens = customerTokens.filter(
+    (t) => t.status === 'waiting' || t.status === 'called' || t.status === 'in_service'
+  );
+
+  const selectedToken = tokens.find((t) => t.id === activeCustomerTokenId);
+  const isSelectedActive =
+    selectedToken &&
+    (selectedToken.status === 'waiting' ||
+      selectedToken.status === 'called' ||
+      selectedToken.status === 'in_service');
+
+  const activeToken =
+    (isSelectedActive ? selectedToken : activeCustomerTokens[0]) ||
+    selectedToken ||
+    customerTokens[0];
+
   const activeCounters = counters.filter((c) => c.status === 'active').length;
-  const anyCalledToken = customerTokens.find((t) => t.status === 'called');
+  const anyCalledToken = activeCustomerTokens.find((t) => t.status === 'called');
 
   const handleTokenCreated = (tokenId: string) => {
     setActiveCustomerToken(tokenId);
@@ -194,15 +209,18 @@ export const CustomerPortal: React.FC = () => {
             >
               <QrCode className="w-4 h-4" />
               <span>
-                {customerTokens.length > 1
-                  ? `My Passes (${customerTokens.length})`
+                {activeCustomerTokens.length > 1
+                  ? `My Passes (${activeCustomerTokens.length})`
                   : 'My Ticket Pass'}
               </span>
-              {activeToken && (
-                <span className="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono">
-                  {activeToken.tokenNumber}
-                </span>
-              )}
+              {activeToken &&
+                (activeToken.status === 'waiting' ||
+                  activeToken.status === 'called' ||
+                  activeToken.status === 'in_service') && (
+                  <span className="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono">
+                    {activeToken.tokenNumber}
+                  </span>
+                )}
               {anyCalledToken && (
                 <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
               )}

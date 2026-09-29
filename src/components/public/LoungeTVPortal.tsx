@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useQueue } from '../../context/QueueContext';
 import { PriorityBadge } from '../common/Badge';
@@ -11,11 +12,13 @@ import {
   Minimize2,
   Layers,
   LogOut,
+  LogIn,
 } from 'lucide-react';
 
 export const LoungeTVPortal: React.FC = () => {
   const { user, logout } = useAuth();
   const { counters, tokens, lastCalledToken } = useQueue();
+  const navigate = useNavigate();
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -92,13 +95,22 @@ export const LoungeTVPortal: React.FC = () => {
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
 
-          {user && (
+          {user ? (
             <button
               onClick={logout}
               className="p-2.5 rounded-xl bg-[#232932] hover:bg-rose-500/20 border border-[#6C7380]/40 text-[#A9A7A8] hover:text-rose-300 transition-colors cursor-pointer"
               title="Sign Out of Lounge Display"
             >
               <LogOut className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="px-3 py-2 rounded-xl bg-[#232932] hover:bg-[#1C2128] border border-[#6C7380]/40 text-xs font-bold text-[#DFCAB2] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+              title="Staff / Customer Sign In"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign In</span>
             </button>
           )}
         </div>
@@ -148,7 +160,11 @@ export const LoungeTVPortal: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {counters.map((counter) => {
-              const servingToken = tokens.find((t) => t.id === counter.currentServingTokenId);
+              const servingToken = tokens.find(
+                (t) =>
+                  t.counterId === counter.id &&
+                  (t.status === 'called' || t.status === 'in_service')
+              );
               const isServing = servingToken !== undefined;
 
               return (

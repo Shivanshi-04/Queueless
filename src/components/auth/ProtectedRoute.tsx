@@ -27,15 +27,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect to their respective authorized view
-    if (user.role === 'Admin') {
-      return <Navigate to="/admin" replace />;
-    } else if (user.role === 'LoungeManager') {
-      return <Navigate to="/lounge" replace />;
-    } else {
-      return <Navigate to="/customer" replace />;
-    }
+    const redirectTarget = user.role === 'Admin' ? '/admin' : user.role === 'LoungeManager' ? '/lounge' : '/customer';
+    console.log('[ROUTING] user.role:', user?.role);
+    console.log('[ROUTING] selected dashboard:', redirectTarget);
+    return <Navigate to={redirectTarget} replace />;
   }
+
+  console.log('[ROUTING] user.role:', user?.role);
+  console.log('[ROUTING] selected dashboard:', location.pathname);
 
   return <>{children}</>;
 };

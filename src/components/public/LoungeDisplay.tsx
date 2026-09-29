@@ -133,7 +133,11 @@ export const LoungeDisplay: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {counters.map((counter) => {
-              const servingToken = tokens.find((t) => t.id === counter.currentServingTokenId);
+              const servingToken = tokens.find(
+                (t) =>
+                  t.counterId === counter.id &&
+                  (t.status === 'called' || t.status === 'in_service')
+              );
               const isServing = servingToken !== undefined;
 
               return (

@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { QueueProvider } from './context/QueueContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AuthScreen } from './components/auth/AuthScreen';
+import { ForgotPasswordScreen } from './components/auth/ForgotPasswordScreen';
+import { ResetPasswordScreen } from './components/auth/ResetPasswordScreen';
 import { CustomerPortal } from './components/customer/CustomerPortal';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { LoungeTVPortal } from './components/public/LoungeTVPortal';
@@ -24,13 +26,11 @@ const RootRedirect: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role === 'Admin') {
-    return <Navigate to="/admin" replace />;
-  } else if (user.role === 'LoungeManager') {
-    return <Navigate to="/lounge" replace />;
-  } else {
-    return <Navigate to="/customer" replace />;
-  }
+  const selectedDashboard = user.role === 'Admin' ? '/admin' : user.role === 'LoungeManager' ? '/lounge' : '/customer';
+  console.log('[ROUTING] user.role:', user?.role);
+  console.log('[ROUTING] selected dashboard:', selectedDashboard);
+
+  return <Navigate to={selectedDashboard} replace />;
 };
 
 export function App() {
@@ -42,12 +42,14 @@ export function App() {
             {/* Public Authentication Gateways */}
             <Route path="/login" element={<AuthScreen />} />
             <Route path="/signup" element={<AuthScreen />} />
+            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+            <Route path="/reset-password" element={<ResetPasswordScreen />} />
 
             {/* Dashboard 1: Customer Portal (/customer) */}
             <Route
               path="/customer"
               element={
-                <ProtectedRoute allowedRoles={['Customer', 'Admin']}>
+                <ProtectedRoute allowedRoles={['Customer']}>
                   <CustomerPortal />
                 </ProtectedRoute>
               }
@@ -63,15 +65,8 @@ export function App() {
               }
             />
 
-            {/* Dashboard 3: Lounge TV Display (/lounge) */}
-            <Route
-              path="/lounge"
-              element={
-                <ProtectedRoute allowedRoles={['LoungeManager', 'Admin', 'Customer']}>
-                  <LoungeTVPortal />
-                </ProtectedRoute>
-              }
-            />
+            {/* Dashboard 3: Lounge TV Display (/lounge) - Direct Public Access */}
+            <Route path="/lounge" element={<LoungeTVPortal />} />
 
             {/* Root & Catch-all Fallbacks */}
             <Route path="/" element={<RootRedirect />} />

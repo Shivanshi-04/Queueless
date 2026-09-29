@@ -30,8 +30,10 @@ export interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
-  register: (credentials: RegisterCredentials) => Promise<{ success: boolean; error?: string }>;
+  login: (credentials: LoginCredentials) => Promise<{ success: boolean; user?: User; error?: string }>;
+  register: (credentials: RegisterCredentials) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => void;
-  quickLoginAs: (role: UserRole) => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  quickLoginAs?: (role: UserRole) => Promise<void>;
 }

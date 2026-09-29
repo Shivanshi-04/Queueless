@@ -30,8 +30,13 @@ export const CounterControlGrid: React.FC<CounterControlGridProps> = ({ onOpenCo
   } = useQueue();
 
   const getServingToken = (counter: Counter) => {
-    if (!counter.currentServingTokenId) return null;
-    return tokens.find((t) => t.id === counter.currentServingTokenId) || null;
+    return (
+      tokens.find(
+        (t) =>
+          t.counterId === counter.id &&
+          (t.status === 'called' || t.status === 'in_service')
+      ) || null
+    );
   };
 
   const getNextCandidate = (counter: Counter) => {

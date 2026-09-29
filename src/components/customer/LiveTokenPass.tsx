@@ -35,11 +35,32 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
     cancelToken,
   } = useQueue();
 
-  const token = tokens.find((t) => t.id === activeCustomerTokenId) || customerTokens[0];
+  const activeCustomerTokens = customerTokens.filter(
+    (t) => t.status === 'waiting' || t.status === 'called' || t.status === 'in_service'
+  );
+
+  const selectedToken = tokens.find((t) => t.id === activeCustomerTokenId);
+  const isSelectedActive =
+    selectedToken &&
+    (selectedToken.status === 'waiting' ||
+      selectedToken.status === 'called' ||
+      selectedToken.status === 'in_service');
+
+  const token =
+    (isSelectedActive ? selectedToken : activeCustomerTokens[0]) ||
+    selectedToken ||
+    customerTokens[0];
+
+  useEffect(() => {
+    if (activeCustomerTokens.length > 0 && (!selectedToken || !isSelectedActive)) {
+      setActiveCustomerToken(activeCustomerTokens[0].id);
+    }
+  }, [activeCustomerTokens, selectedToken, isSelectedActive, setActiveCustomerToken]);
+
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
   // Check if another of the user's tickets is currently being called
-  const calledOtherToken = customerTokens.find(
+  const calledOtherToken = activeCustomerTokens.find(
     (t) => t.id !== token?.id && t.status === 'called'
   );
 
@@ -107,14 +128,14 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
-      {/* Multi-Ticket Selector Header (Visible whenever user has 2 or more tickets) */}
-      {customerTokens.length > 1 && (
+      {/* Multi-Ticket Selector Header (Visible whenever user has 2 or more active tickets) */}
+      {activeCustomerTokens.length > 1 && (
         <div className="bg-[#F8F8F6] rounded-2xl p-4 border border-[#A9A7A8]/40 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#E07015]" />
               <h3 className="text-xs font-black uppercase tracking-wider text-[#2D3441]">
-                My Passes ({customerTokens.length} Active Tickets)
+                My Passes ({activeCustomerTokens.length} Active Tickets)
               </h3>
             </div>
             <button
@@ -128,7 +149,7 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
 
           {/* Quick Ticket Switcher Tabs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {customerTokens.map((t) => {
+            {activeCustomerTokens.map((t) => {
               const isCurrent = t.id === token.id;
               const { position: tPos } = calculateQueuePosition(t.id, tokens);
               const tEta = estimateWaitTime(t, tokens, counters, services);
@@ -435,8 +456,8 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
         </div>
       </div>
 
-      {/* All My Passes Overview Table (Visible when holding multiple tickets) */}
-      {customerTokens.length > 1 && (
+      {/* All My Passes Overview Table (Visible when holding multiple active tickets) */}
+      {activeCustomerTokens.length > 1 && (
         <div className="bg-[#F8F8F6] rounded-2xl p-4 sm:p-5 border border-[#A9A7A8]/35 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div>
@@ -445,7 +466,7 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
                 <span>All Your Passes at a Glance</span>
               </h4>
               <p className="text-[11px] text-[#6C7380] mt-0.5">
-                Summary of all {customerTokens.length} tickets in your queue session.
+                Summary of all {activeCustomerTokens.length} tickets in your queue session.
               </p>
             </div>
             <button
@@ -458,7 +479,7 @@ export const LiveTokenPass: React.FC<LiveTokenPassProps> = ({
           </div>
 
           <div className="space-y-2">
-            {customerTokens.map((t) => {
+            {activeCustomerTokens.map((t) => {
               const isSelected = t.id === token.id;
               const { position: tPos, peopleAhead: tAhead } = calculateQueuePosition(t.id, tokens);
               const tEta = estimateWaitTime(t, tokens, counters, services);

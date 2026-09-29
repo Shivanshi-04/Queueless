@@ -1,138 +1,263 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, AuthContextType, LoginCredentials, RegisterCredentials, UserRole } from '../types/auth';
-import { api } from '../services/api';
+import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabaseClient';
 
-const TOKEN_KEY = 'queueless_auth_token';
-const USER_KEY = 'queueless_auth_user';
-
-const DEMO_ACCOUNTS: Record<UserRole, { id: string; email: string; password: string; name: string }> = {
-  Customer: { id: 'usr-customer-demo', email: 'customer@demo.com', password: 'password123', name: 'Alex Johnson (Customer)' },
-  Admin: { id: 'usr-admin-demo', email: 'admin@demo.com', password: 'password123', name: 'Sarah Miller (Admin)' },
-  LoungeManager: { id: 'usr-lounge-demo', email: 'lounge@demo.com', password: 'password123', name: 'Lounge Display Operator' },
-};
+interface ProfileRow {
+  id: string;
+  name?: string | null;
+  full_name?: string | null;
+  role: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem(USER_KEY);
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch (e) {
-        console.error('Failed to parse saved user from storage', e);
+// Helper to fetch user profile from public.profiles and construct application User object
+const fetchUserProfile = async (authUser: SupabaseAuthUser): Promise<User> => {
+  try {
+    // 1. Supabase authenticated user
+    console.log('[AUTH] Supabase user:', authUser);
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authUser.id)
+      .maybeSingle<ProfileRow>();
+
+    if (error) {
+      console.warn('[AUTH] Error reading profile from public.profiles:', error.message, error);
+    }
+
+    // 2. Profile returned from Supabase
+    console.log('[AUTH] Profile:', profile);
+
+    const candidateRole = profile?.role || authUser.user_metadata?.role || authUser.app_metadata?.role;
+    let role: UserRole = 'Customer';
+    if (candidateRole) {
+      const rawRole = candidateRole.toString().trim().toLowerCase();
+      if (rawRole === 'admin') {
+        role = 'Admin';
+      } else if (rawRole === 'loungemanager' || rawRole === 'lounge_manager' || rawRole === 'lounge') {
+        role = 'LoungeManager';
+      } else if (rawRole === 'customer') {
+        role = 'Customer';
+      } else if (candidateRole === 'Admin' || candidateRole === 'LoungeManager' || candidateRole === 'Customer') {
+        role = candidateRole as UserRole;
       }
     }
-    return null;
-  });
 
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem(TOKEN_KEY) || null;
-  });
+    const applicationUser: User = {
+      id: authUser.id,
+      email: authUser.email || '',
+      name: profile?.name || profile?.full_name || authUser.user_metadata?.name || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+      role,
+      createdAt: profile?.created_at || authUser.created_at,
+    };
 
+    // 3. Final AuthContext user object
+    console.log('[AUTH] Final application user:', applicationUser);
+
+    return applicationUser;
+  } catch (err) {
+    console.error('[AUTH] Failed to resolve profile for user:', err);
+    const candidateRole = authUser.user_metadata?.role || authUser.app_metadata?.role;
+    let role: UserRole = 'Customer';
+    if (candidateRole) {
+      const rawRole = candidateRole.toString().trim().toLowerCase();
+      if (rawRole === 'admin') role = 'Admin';
+      else if (rawRole === 'loungemanager' || rawRole === 'lounge_manager' || rawRole === 'lounge') role = 'LoungeManager';
+    }
+
+    const fallbackUser: User = {
+      id: authUser.id,
+      email: authUser.email || '',
+      name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+      role,
+      createdAt: authUser.created_at,
+    };
+
+    console.log('[AUTH] Final application user:', fallbackUser);
+
+    return fallbackUser;
+  }
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Validate session on mount
+  // Initialize session and subscribe to auth state changes
   useEffect(() => {
-    const verifyUserSession = async () => {
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-      if (!storedToken) {
-        setIsLoading(false);
-        return;
-      }
+    let isMounted = true;
 
+    const initializeAuth = async () => {
       try {
-        const response = await api.get('/auth/me');
-        if (response.data?.user) {
-          setUser(response.data.user);
-          localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.warn('[AUTH DEBUG] Error getting Supabase session:', sessionError.message);
+        }
+
+        if (session?.user && isMounted) {
+          const { data: userData } = await supabase.auth.getUser();
+          const authUser = userData?.user || session.user;
+          const appUser = await fetchUserProfile(authUser);
+          if (isMounted) {
+            setUser(appUser);
+            setToken(session.access_token);
+            localStorage.setItem('queueless_auth_token', session.access_token);
+            localStorage.setItem('queueless_auth_user', JSON.stringify(appUser));
+          }
+        } else if (isMounted) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('queueless_auth_token');
+          localStorage.removeItem('queueless_auth_user');
         }
       } catch (err) {
-        console.warn('Session token validation failed or backend offline. Using cached session.');
+        console.warn('[AUTH DEBUG] Error during session initialization:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    verifyUserSession();
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          const { data: userData } = await supabase.auth.getUser();
+          const authUser = userData?.user || session.user;
+          const appUser = await fetchUserProfile(authUser);
+          if (isMounted) {
+            setUser(appUser);
+            setToken(session.access_token);
+            localStorage.setItem('queueless_auth_token', session.access_token);
+            localStorage.setItem('queueless_auth_user', JSON.stringify(appUser));
+            setIsLoading(false);
+          }
+        } else {
+          if (isMounted) {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('queueless_auth_token');
+            localStorage.removeItem('queueless_auth_user');
+            setIsLoading(false);
+          }
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
+  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; user?: User; error?: string }> => {
     try {
       setIsLoading(true);
-      const response = await api.post('/auth/login', credentials);
-      const { token: receivedToken, user: receivedUser } = response.data;
 
-      setToken(receivedToken);
-      setUser(receivedUser);
-      localStorage.setItem(TOKEN_KEY, receivedToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(receivedUser));
-
-      return { success: true };
-    } catch (err: any) {
-      // Check if credentials match a demo account fallback
-      const matchingDemo = Object.values(DEMO_ACCOUNTS).find(
-        (acc) => acc.email.toLowerCase() === credentials.email.toLowerCase() && acc.password === credentials.password
-      );
-
-      if (matchingDemo) {
-        const role = matchingDemo.email.includes('admin')
-          ? 'Admin'
-          : matchingDemo.email.includes('lounge')
-          ? 'LoungeManager'
-          : 'Customer';
-
-        const fallbackUser: User = {
-          id: matchingDemo.id,
-          name: matchingDemo.name,
-          email: matchingDemo.email,
-          role: role as UserRole,
-        };
-        const fallbackToken = `jwt-${role.toLowerCase()}-${Date.now()}`;
-
-        setToken(fallbackToken);
-        setUser(fallbackUser);
-        localStorage.setItem(TOKEN_KEY, fallbackToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(fallbackUser));
-
-        return { success: true };
+      if (!credentials.email || !credentials.password) {
+        return { success: false, error: 'Please provide both email and password.' };
       }
 
-      const errorMsg = err.response?.data?.message || err.message || 'Login failed. Please check credentials.';
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email.trim(),
+        password: credentials.password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (!data.user || !data.session) {
+        return { success: false, error: 'Login failed. No active session returned.' };
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      const authUser = userData?.user || data.user;
+
+      const appUser = await fetchUserProfile(authUser);
+      const sessionToken = data.session.access_token;
+
+      setUser(appUser);
+      setToken(sessionToken);
+      localStorage.setItem('queueless_auth_token', sessionToken);
+      localStorage.setItem('queueless_auth_user', JSON.stringify(appUser));
+
+      return { success: true, user: appUser };
+    } catch (err: any) {
+      const errorMsg = err.message || 'Login failed. Please check credentials.';
       return { success: false, error: errorMsg };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (credentials: RegisterCredentials): Promise<{ success: boolean; error?: string }> => {
+  const register = async (credentials: RegisterCredentials): Promise<{ success: boolean; user?: User; error?: string }> => {
     try {
       setIsLoading(true);
-      const response = await api.post('/auth/register', credentials);
-      const { token: receivedToken, user: receivedUser } = response.data;
 
-      setToken(receivedToken);
-      setUser(receivedUser);
-      localStorage.setItem(TOKEN_KEY, receivedToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(receivedUser));
+      if (!credentials.email || !credentials.password) {
+        return { success: false, error: 'Please provide both email and password.' };
+      }
 
-      return { success: true };
+      // Security requirement: public registration must strictly enforce Customer role
+      const name = credentials.name?.trim() || '';
+
+      const { data, error } = await supabase.auth.signUp({
+        email: credentials.email.trim(),
+        password: credentials.password,
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (!data.user) {
+        return { success: false, error: 'Registration failed. No user returned.' };
+      }
+
+      // Explicitly insert or ensure Customer profile exists in public.profiles using name
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            name: name || data.user.email?.split('@')[0] || 'Customer',
+            role: 'Customer',
+          });
+      } catch (profileErr) {
+        console.warn('Profile synchronization notice:', profileErr);
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      const authUser = userData?.user || data.user;
+      const appUser = await fetchUserProfile(authUser);
+      const sessionToken = data.session?.access_token || null;
+
+      setUser(appUser);
+      setToken(sessionToken);
+
+      if (sessionToken) {
+        localStorage.setItem('queueless_auth_token', sessionToken);
+      }
+      localStorage.setItem('queueless_auth_user', JSON.stringify(appUser));
+
+      return { success: true, user: appUser };
     } catch (err: any) {
-      // Fallback local registration if backend is offline
-      const fallbackUser: User = {
-        id: `usr-${Date.now()}`,
-        name: credentials.name,
-        email: credentials.email,
-        role: credentials.role,
-      };
-      const fallbackToken = `jwt-${credentials.role.toLowerCase()}-${Date.now()}`;
-
-      setToken(fallbackToken);
-      setUser(fallbackUser);
-      localStorage.setItem(TOKEN_KEY, fallbackToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(fallbackUser));
-
-      return { success: true };
+      const errorMsg = err.message || 'An unexpected registration error occurred.';
+      return { success: false, error: errorMsg };
     } finally {
       setIsLoading(false);
     }
@@ -141,39 +266,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem('queueless_auth_token');
+    localStorage.removeItem('queueless_auth_user');
+
+    supabase.auth.signOut().catch((err) => {
+      console.warn('Error signing out of Supabase:', err);
+    });
   };
 
-  // Instant one-click demo login: immediately updates state & storage, then background syncs
-  const quickLoginAs = async (role: UserRole) => {
-    const target = DEMO_ACCOUNTS[role];
-
-    // 1. Immediately establish session synchronously for instantaneous navigation
-    const instantUser: User = {
-      id: target.id,
-      name: target.name,
-      email: target.email,
-      role: role,
-    };
-    const instantToken = `jwt-${role.toLowerCase()}-${Date.now()}`;
-
-    setUser(instantUser);
-    setToken(instantToken);
-    localStorage.setItem(TOKEN_KEY, instantToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(instantUser));
-
-    // 2. Background sync with backend without blocking UI navigation
+  const resetPasswordForEmail = async (
+    email: string
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await api.post('/auth/login', { email: target.email, password: target.password });
-      if (res.data?.token && res.data?.user) {
-        setToken(res.data.token);
-        setUser(res.data.user);
-        localStorage.setItem(TOKEN_KEY, res.data.token);
-        localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: 'http://localhost:5173/reset-password',
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
       }
-    } catch {
-      // Backend may be starting or offline; instant session is already active
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Failed to send password reset email.' };
+    }
+  };
+
+  const updatePassword = async (
+    newPassword: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Failed to update password.' };
     }
   };
 
@@ -187,7 +320,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
-        quickLoginAs,
+        resetPasswordForEmail,
+        updatePassword,
       }}
     >
       {children}
