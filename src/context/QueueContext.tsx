@@ -534,56 +534,10 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // 2. Resolve service definition from SERVICE_TYPES
       const service = SERVICE_TYPES.find((s) => s.id === data.serviceId) || SERVICE_TYPES[0];
 
-      // 3. Resolve service prefix
-      // Preserve existing service prefixes:
-      // account_services → A, cashier_billing → B, vip_services → V, tech_support → T, express_drop → E
-      // VIP priority → V, Urgent priority → U
-      let prefix = 'A';
-      switch (service.id) {
-        case 'account_services':
-          prefix = 'A';
-          break;
-        case 'cashier_billing':
-          prefix = 'B';
-          break;
-        case 'vip_services':
-          prefix = 'V';
-          break;
-        case 'tech_support':
-          prefix = 'T';
-          break;
-        case 'express_drop':
-          prefix = 'E';
-          break;
-        default:
-          prefix = service.prefix || 'A';
-          break;
-      }
-
-      if (data.priority === 'vip') {
-        prefix = 'V';
-      } else if (data.priority === 'urgent') {
-        prefix = 'U';
-      }
-
-      // 4. Generate next sequence number based on existing tokens currently loaded in QueueContext
-      const matchingTokens = tokens.filter((t) => t.tokenNumber && t.tokenNumber.startsWith(`${prefix}-`));
-      const nextSeq = 100 + (matchingTokens.length % 900) + 1;
-      let tokenNumber = `${prefix}-${nextSeq}`;
-
-      if (tokens.some((t) => t.tokenNumber === tokenNumber)) {
-        const maxSeq = matchingTokens.reduce((max, t) => {
-          const parts = t.tokenNumber.split('-');
-          const num = parseInt(parts[1], 10);
-          return !isNaN(num) && num > max ? num : max;
-        }, 100);
-        tokenNumber = `${prefix}-${maxSeq + 1}`;
-      }
-
-      // 5. Calculate estimated wait time
+      // 3. Calculate estimated wait time
       const tempToken: Token = {
         id: 'temp',
-        tokenNumber,
+        tokenNumber: 'temp',
         customerName: data.customerName.trim(),
         contact: data.contact.trim(),
         serviceId: service.id,
@@ -597,32 +551,28 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const estimatedWaitMins =
         estimateWaitTime(tempToken, [...tokens, tempToken], counters, SERVICE_TYPES) || service.avgDurationMins || 5;
 
-      // 6. Insert directly into Supabase public.tokens
-      const { data: insertedToken, error: insertError } = await supabase
-        .from('tokens')
-        .insert({
-          token_number: tokenNumber,
-          customer_name: data.customerName.trim(),
-          contact: data.contact.trim(),
-          user_id: user.id,
-          service_id: service.id,
-          priority: data.priority,
-          status: 'waiting',
-          notes: data.notes?.trim() || '',
-          estimated_wait_mins: estimatedWaitMins,
-        })
-        .select()
-        .single();
+      // 4. Create queue token via Supabase RPC
+      const { data: createdToken, error } = await supabase.rpc(
+        'create_queue_token',
+        {
+          p_customer_name: data.customerName.trim(),
+          p_contact: data.contact.trim(),
+          p_service_id: service.id,
+          p_priority: data.priority,
+          p_notes: data.notes?.trim() || '',
+          p_estimated_wait_mins: estimatedWaitMins,
+        }
+      );
 
-      if (insertError || !insertedToken) {
-        console.error('[SUPABASE TOKEN CREATE ERROR]', insertError);
-        throw new Error(insertError?.message || 'Failed to create token in Supabase');
+      if (error) {
+        console.error('[SUPABASE CREATE TOKEN ERROR]', error);
+        return undefined as any;
       }
 
-      // 7. Convert returned Supabase row into frontend Token interface
-      const newToken = normalizeToken(insertedToken);
+      // 5. Convert returned Supabase row into frontend Token interface
+      const newToken = normalizeToken(Array.isArray(createdToken) ? createdToken[0] : createdToken);
 
-      // 8. Update context state
+      // 6. Update context state
       setTokens((prev) => [newToken, ...prev]);
       setCustomerTokenIds((prev) => Array.from(new Set([newToken.id, ...prev])));
       setActiveCustomerTokenId(newToken.id);
