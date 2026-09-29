@@ -341,17 +341,17 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     refreshQueue();
 
-    const {
-      data: { subscription: authSub },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        refreshQueue();
-      }
-    });
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
-    // Single Supabase Realtime channel for queue state synchronization
-    const channel = supabase
-      .channel('queue_realtime')
+    const subscribeChannel = () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+        channel = null;
+      }
+
+      // Single Supabase Realtime channel for queue state synchronization
+      channel = supabase
+        .channel('queue_realtime')
       // --- Tokens Realtime CDC ---
       .on(
         'postgres_changes',
@@ -506,10 +506,34 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           console.log('⚡ Supabase Realtime channel closed');
         }
       });
+    };
+
+    const handleAuthAndSubscribe = async (sessionToken?: string | null) => {
+      if (sessionToken) {
+        await supabase.realtime.setAuth(sessionToken);
+      }
+      subscribeChannel();
+    };
+
+    // Initial session check & Realtime channel authorization
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleAuthAndSubscribe(session?.access_token);
+    });
+
+    const {
+      data: { subscription: authSub },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session) {
+        refreshQueue();
+      }
+      handleAuthAndSubscribe(session?.access_token);
+    });
 
     return () => {
       authSub.unsubscribe();
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [refreshQueue, addLog]);
 
